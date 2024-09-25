@@ -68,6 +68,19 @@ void SetSpeed(bool right, bool front, float speed = 0)
   }
 }
 
+double B(double x){
+  min(100, max(-100, x));
+}
+
+void drive(double forward, double right, double turn)
+{
+  SetSpeed(false, true, B((forward+right+turn)/(abs(forward)+abs(right)+abs(turn))));
+  SetSpeed(true, true, B((forward-right-turn)/(abs(forward)+abs(right)+abs(turn))));
+  SetSpeed(false, false, B((forward-right+turn)/(abs(forward)+abs(right)+abs(turn))));
+  SetSpeed(true, false, B((forward+right-turn)/(abs(forward)+abs(right)+abs(turn))));
+
+}
+
 void stop()
 {
   ledcWrite(RFplus, 0);
