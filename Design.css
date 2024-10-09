@@ -1,0 +1,109 @@
+
+body {
+    display: flex;
+    height: 100vh;
+    margin: 0;
+    justify-content: center;
+    flex-wrap: nowrap;
+    align-content: center;
+    align-items: center;
+    flex-direction: row;
+    background-color: black;
+}
+
+.heading { 
+    display: flex;
+    background-color: rgb(0, 0, 0);
+    width: 270px;
+    height: 75px;
+    border-radius: 30px;
+    color: white;
+    font-size: 30px;
+    text-shadow: 3px 2px 5px rgb(0, 0, 0);
+    font-family: 'Franklin Gothic Medium';
+    justify-content: center;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    align-items: center;
+}
+
+.background {
+    display: flex;
+    width: 360px;
+    height: 330px;
+    background-color: rgb(20, 20, 20);
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.button1 {
+    transition: 100ms;
+    display: flex;
+    height: 80px;
+    width: 80px;
+    background-color: rgb(0, 0, 0);
+    color: rgb(97, 159, 217);
+    border-style: outset;
+    border-color: rgb(75, 106, 134);
+    font-size: 40px;
+    font-family: 'Franklin Gothic Medium';
+    border-radius: 100%;
+    box-shadow: 5px 4px 13px 4px black;
+    text-shadow: 3px 2px 5px rgb(0, 0, 0);
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    margin-top:25px;
+    margin-bottom:25px;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.button2 {
+    transition: 100ms;
+    display: flex;
+    height: 40px;
+    width: 160px;
+    background-color: rgb(0, 0, 0);
+    color: rgb(97, 159, 217);
+    border-style: outset;
+    border-color: rgb(75, 106, 134);
+    font-size: 25px;
+    font-family: 'Courier New', Courier, monospace;
+    border-radius: 5px;
+    box-shadow: 5px 4px 13px 4px black;
+    text-shadow: 3px 2px 5px rgb(0, 0, 0);
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    margin-top:25px;
+    margin-bottom:25px;
+    margin-left: 15px;
+    margin-right: 35px;
+}
+
+button:hover {
+    background-color: rgb(48, 47, 47);
+    transform:translatey(-3px)
+}
+
+button:active {
+    background-color: rgb(0, 0, 0);
+    transform:translatex(3px);
+    
+}
+
+/* button {
+    animation-duration: 2.5s;
+    animation-name: rotate;
+    animation-iteration-count: infinite;
+    animation-direction:  alternate;
+} */
