@@ -1,13 +1,13 @@
 bool EN_MOTORS = false, EN_DISPLAY = false, EN_RGB = false, EN_GYRO = false, EN_IR = false, EN_WIFI = false, EN_SCANNER = false, EN_SERVO = false;
 //* Motors
-#define PinRFplus 12
-#define PinRFminus 13
-#define PinLFplus 16
-#define PinLFminus 17
-#define PinRBplus 14
-#define PinRBminus 15
-#define PinLBplus 18
-#define PinLBminus 19
+#define PinRFplus 18
+#define PinRFminus 17
+#define PinLFplus 15
+#define PinLFminus 16
+#define PinRBplus 23
+#define PinRBminus 14
+#define PinLBplus 12
+#define PinLBminus 13
 
 #define RFplus 2
 #define RFminus 3
