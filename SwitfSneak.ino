@@ -2,12 +2,12 @@ bool EN_MOTORS = false, EN_DISPLAY = false, EN_RGB = false, EN_GYRO = false, EN_
 //* Motors
 #define PinRFplus 12
 #define PinRFminus 13
-#define PinLFplus 32
-#define PinLFminus 33
+#define PinLFplus 16
+#define PinLFminus 17
 #define PinRBplus 14
-#define PinRBminus 5
-#define PinLBplus 34
-#define PinLBminus 35
+#define PinRBminus 15
+#define PinLBplus 18
+#define PinLBminus 19
 
 #define RFplus 2
 #define RFminus 3
