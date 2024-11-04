@@ -337,7 +337,7 @@ void scan()
     uploadScan(YServo_position, xdots);
     String toAdd = "";
 
-    delay(20);
+    delay(20); 
   }
   
 }
