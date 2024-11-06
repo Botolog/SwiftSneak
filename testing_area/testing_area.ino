@@ -175,7 +175,7 @@ void setupWiFi()
   Serial.println(WiFi.localIP());
   if (EN_DISPLAY)
   {
-    printOnDisplay(String(WiFi.localIP()));
+    // printOnDisplay(String(WiFi.localIP()));
   }
 }
 
@@ -183,6 +183,7 @@ int contX;
 int contY;
 int camX;
 int camY;
+int rot;
 int option;
 
 void sep(String a)
@@ -205,13 +206,18 @@ void sep(String a)
   // Find the fourth comma after the third one
   int commaIndex4 = a.indexOf(',', commaIndex3 + 1);
   String e = a.substring(commaIndex3 + 1, commaIndex4); // Extract substring between third and fourth comma
-  String f = a.substring(commaIndex4 + 1);              // Extract substring after the fourth comma
+
+  // Find the fourth comma after the third one
+  int commaIndex5 = a.indexOf(',', commaIndex4 + 1);
+  String f = a.substring(commaIndex4 + 1, commaIndex5); // Extract substring between third and fourth comma
+  String g = a.substring(commaIndex5 + 1);              // Extract substring after the fourth comma
 
   contX = b.toInt();
   contY = c.toInt();
   camX = d.toInt();
   camY = e.toInt();
-  option = f.toInt();
+  rot  = f.toInt();
+  option = g.toInt();
 }
 
 void remoteCtrl()
@@ -235,10 +241,10 @@ void remoteCtrl()
         }
         Serial.println("Received command: " + command);
         sep(command);
-        int speed = contY, shift = contX;
-        if (speed != 0 || shift != 0)
+        int speed = contY, shift = contX, Rot = rot;
+        if (speed != 0 || shift != 0 || Rot != 0)
         {
-          drive(speed, 0, shift);
+          drive(speed, shift, Rot);
         }
         else
         {
