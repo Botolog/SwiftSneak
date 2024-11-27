@@ -154,7 +154,7 @@ void stop() {
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-const char *ssid = "P2p";
+const char *ssid = "Modin-Students";
 const char *password = "";
 
 WiFiServer server(80);
