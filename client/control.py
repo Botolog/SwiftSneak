@@ -3,6 +3,7 @@ import keyboard
 import pygame
 from time import sleep as wait
 from time import time as now
+from threading import Thread
 
 
 def tupToStr(A):
@@ -99,7 +100,7 @@ clock = pygame.time.Clock()
 pastBX = 0
 pastBY = 0
 
-pastKeyInput = (0, 0, 0)
+pastKeyInput = (0, 0, 0, 0, 0, 0)
 pastConInput = (0, 0, 0, 0, 0, 0)
 
 HOST = input("input the IP: ")  # Replace with ESP32's IP address
@@ -125,12 +126,19 @@ while True:
                         pastConInput = conInput
                         wait(0.1)
             else:
+                import interface_flask.interflask as ifl
+                t = Thread(target=ifl.run)
+                t.start()
                 while True:
-                    keyInput = check_keys()
-                    if d(keyInput, pastKeyInput):
-                        s.sendall(prepToSend(tupToStr(keyInput)))
-                        pastKeyInput = keyInput
-                        wait(0.2)
+                    s.sendall(prepToSend(tupToStr(ifl.get_data())))
+                    wait(0.2)
+            # else:
+                # while True:
+                #     keyInput = check_keys()
+                #     if d(keyInput, pastKeyInput):
+                #         s.sendall(prepToSend(tupToStr(keyInput)))
+                #         pastKeyInput = keyInput
+                #         wait(0.2)
                         
     except ConnectionResetError as e:
         print("Connection reset")
