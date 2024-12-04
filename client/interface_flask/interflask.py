@@ -8,10 +8,13 @@ app.config["DEBUG"] = True
 
 DATA_OUT = (0, 0, 0, 0, 0, 0)
 
+IMGURL = ""
+
 @app.route('/', methods=['GET'])
 def main():
+  global IMGURL
   # return "yeepeee"
-  return render_template('index.html')
+  return render_template('index.html', IMGURL=IMGURL)
 
 @app.route('/action/<speed>/<info>', methods=['GET'])
 def data(speed, info): 

@@ -31,53 +31,52 @@ def check_keys():
     return (AX, AY, AR)
 
 
-
 def check_controller():
     global pastBX, pastBY, global_speed
     pygame.event.get()
 
-    AX = int(joystick.get_axis(0) *  10) * 10
+    AX = int(joystick.get_axis(0) * 10) * 10
     AY = int(joystick.get_axis(1) * -10) * 10
-    
+
     if joystick.get_button(8) > 0:
         BX = 180 - int(90 * joystick.get_axis(2) + 90)
         BY = 180 - int(-45 * joystick.get_axis(3) + 45)
     else:
         BX = pastBX
         BY = pastBY
-        
-    R = int((joystick.get_axis(5)+1) /2 * 11) * 10
-    L = int((joystick.get_axis(4)+1) /2 * 11) * 10
-    R = (R-L)
+
+    R = int((joystick.get_axis(5) + 1) / 2 * 11) * 10
+    L = int((joystick.get_axis(4) + 1) / 2 * 11) * 10
+    R = R - L
     OP = min(joystick.get_button(9) + joystick.get_button(10), 1)
-    OP += joystick.get_button(15)*2
+    OP += joystick.get_button(15) * 2
     pastBX = BX
     pastBY = BY
-    
-    if (joystick.get_button(11) > 0):
+
+    if joystick.get_button(11) > 0:
         global_speed += 0.000001
-    if (joystick.get_button(12) > 0):
+    if joystick.get_button(12) > 0:
         global_speed -= 0.000001
     global_speed = min(1, max(0, global_speed))
     # print("speed: " + str(global_speed))
-    
 
     return kneeCapV2((AX, AY, BX, BY, R, OP), global_speed)
 
-def kneeCapV1(A: tuple, lim:int=40) -> tuple:
+
+def kneeCapV1(A: tuple, lim: int = 40) -> tuple:
     B = list(A)
     for i in range(len(B)):
         B[i] = min(lim, max(-lim, B[i]))
-    
+
     return tuple(B)
 
 
-def kneeCapV2(A: tuple, amp:int=0.4) -> tuple:
+def kneeCapV2(A: tuple, amp: int = 0.4) -> tuple:
     B = list(A)
     for i in range(len(B)):
         B[i] = int(B[i] * amp)
         # B[i] = min(amp, max(-amp, B[i]))
-    
+
     return tuple(B)
 
 
@@ -87,6 +86,7 @@ def d(a, b, t=10):
         delta += abs(a[i] - b[i])
     # delta += abs(a[4] - b[4]) * 50
     return delta > t
+
 
 def GET_IP():
     return "http://" + socket.gethostbyname(socket.gethostname()) + ":8080/"
@@ -103,6 +103,7 @@ pastBY = 0
 pastKeyInput = (0, 0, 0, 0, 0, 0)
 pastConInput = (0, 0, 0, 0, 0, 0)
 
+IMGURL = "http://192.168.17.91"
 HOST = input("input the IP: ")  # Replace with ESP32's IP address
 PORT = 80
 lastSend = 0
@@ -119,7 +120,7 @@ while True:
                 axes = joystick.get_numaxes()
                 while True:
                     conInput = check_controller()
-                    if d(conInput, pastConInput) or (now() - lastSend>1):
+                    if d(conInput, pastConInput) or (now() - lastSend > 1):
                         print(tupToStr(conInput))
                         s.sendall(prepToSend(tupToStr(conInput)))
                         lastSend = now()
@@ -127,18 +128,19 @@ while True:
                         wait(0.1)
             else:
                 import interface_flask.interflask as ifl
+                ifl.IMGURL = IMGURL
                 t = Thread(target=ifl.run)
                 t.start()
                 while True:
                     s.sendall(prepToSend(tupToStr(ifl.get_data())))
                     wait(0.2)
             # else:
-                # while True:
-                #     keyInput = check_keys()
-                #     if d(keyInput, pastKeyInput):
-                #         s.sendall(prepToSend(tupToStr(keyInput)))
-                #         pastKeyInput = keyInput
-                #         wait(0.2)
-                        
+            # while True:
+            #     keyInput = check_keys()
+            #     if d(keyInput, pastKeyInput):
+            #         s.sendall(prepToSend(tupToStr(keyInput)))
+            #         pastKeyInput = keyInput
+            #         wait(0.2)
+
     except ConnectionResetError as e:
         print("Connection reset")
