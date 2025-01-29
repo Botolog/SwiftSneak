@@ -9,14 +9,14 @@ bool EN_MOTORS = false, EN_DISPLAY = false, EN_RGB = false, EN_GYRO = false, EN_
 #define PinLBplus 13
 #define PinLBminus 12
 
-#define RFplus 4
-#define RFminus 4
-#define LFplus 6
-#define LFminus 6
-#define RBplus 5
+#define RFplus 7
+#define RFminus 1
+#define LFplus 2
+#define LFminus 3
+#define RBplus 8
 #define RBminus 5
-#define LBplus 2
-#define LBminus 2
+#define LBplus 6
+#define LBminus 4
 
 const int freq = 3000;
 const int resolution = 8;
@@ -89,7 +89,6 @@ void stop() {
 // #include <Servo.h>
 // #include <ESP32PWM.h>
 #include <ESP32Servo.h>
-
 
 
 Servo Xservo;
@@ -281,7 +280,7 @@ void remoteCtrl()
 
 TFLI2C tflI2C;
 int16_t tfDist;               // distance in centimeters
-int16_t tfAddr = TFL_DEF_ADR; // Use this default I2C address
+int16_t tfAddr = 0x10; // Use this default I2C address
 
 int xdots[180];
 int ydots[180];
@@ -315,7 +314,7 @@ int16_t mesure()
   }
   delay(10);
   tflI2C.getData(tfDist, tfAddr);
-  Serial.println(tfDist);
+  // Serial.println(tfDist);
   return tfDist;
 }
 
@@ -383,13 +382,13 @@ void setup()
   Serial.begin(115200);
   setupMotors();
   // drive(0, 0, 0);
-  setupServo();
+  // setupServo();
   // setupDisplay();
   // setupRGB();
   // setupGyro();
   // setupIR();
   setupWiFi();
-  setupScanner();
+  // setupScanner();
 
   Serial.println("Ready! Starting...");
   delay(500);
@@ -405,8 +404,8 @@ void runRemotCtrl()
 
 void loop()
 {
-  // runRemotCtrl();
+  runRemotCtrl();
   // scan();
   // delay(10000);
-  mesure();
+  // mesure();
 }
