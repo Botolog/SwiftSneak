@@ -103,7 +103,7 @@ pastBY = 0
 pastKeyInput = (0, 0, 0, 0, 0, 0)
 pastConInput = (0, 0, 0, 0, 0, 0)
 
-IMGURL = "http://192.168.17.91"
+IMGURL = "http://192.168.166.228"
 HOST = input("input the IP: ")  # Replace with ESP32's IP address
 PORT = 80
 lastSend = 0

@@ -4,10 +4,10 @@ bool EN_MOTORS = false, EN_DISPLAY = false, EN_RGB = false, EN_GYRO = false, EN_
 #define PinRFminus 17
 #define PinLFplus 15
 #define PinLFminus 16
-#define PinRBplus 23
-#define PinRBminus 14
-#define PinLBplus 12
-#define PinLBminus 13
+#define PinRBplus 14
+#define PinRBminus 23
+#define PinLBplus 13
+#define PinLBminus 12
 
 #define RFplus 2
 #define RFminus 3
@@ -21,8 +21,7 @@ bool EN_MOTORS = false, EN_DISPLAY = false, EN_RGB = false, EN_GYRO = false, EN_
 const int freq = 3000;
 const int resolution = 8;
 
-void setupMotors()
-{
+void setupMotors() {
   EN_MOTORS = true;
   ledcSetup(RFplus, freq, resolution);
   ledcSetup(RFminus, freq, resolution);
@@ -42,47 +41,39 @@ void setupMotors()
   ledcAttachPin(PinLBminus, LBminus);
 }
 
-void SetSpeed(bool right, bool front, float speed = 0)
-{
-  speed = max(min((speed + 100) / 200 * 255, 255.0F), 0.0F);
+void SetSpeed(bool right, bool front, double speed = 0) {
+  Serial.print(speed); Serial.print(" ==> ");
+  speed = max(min(((speed) + 100) / 200 * 255, 255.0), 0.0);
+  Serial.println(speed);
 
-  if (right && front)
-  {
+  if (right && front) {
     ledcWrite(RFplus, speed);
     ledcWrite(RFminus, 255 - speed);
-  }
-  else if (right && !front)
-  {
+  } else if (right && !front) {
     ledcWrite(RBplus, speed);
     ledcWrite(RBminus, 255 - speed);
-  }
-  else if (!right && front)
-  {
+  } else if (!right && front) {
     ledcWrite(LFplus, speed);
     ledcWrite(LFminus, 255 - speed);
-  }
-  else if (!right && !front)
-  {
+  } else if (!right && !front) {
     ledcWrite(LBplus, speed);
     ledcWrite(LBminus, 255 - speed);
   }
 }
 
-double B(double x)
-{
-  min(100, max(-100, x));
+double B(double x) {
+  return min(100.0, max(-100.0, x));
 }
 
-void drive(double forward, double right, double turn)
-{
-  SetSpeed(false, true, B((forward + right + turn) / (abs(forward) + abs(right) + abs(turn))));
-  SetSpeed(true, true, B((forward - right - turn) / (abs(forward) + abs(right) + abs(turn))));
-  SetSpeed(false, false, B((forward - right + turn) / (abs(forward) + abs(right) + abs(turn))));
-  SetSpeed(true, false, B((forward + right - turn) / (abs(forward) + abs(right) + abs(turn))));
+void drive(double forward, double right, double turn) {
+  forward /= 100; right /= 100; turn /= 100;
+  SetSpeed(false, true,  100*B(forward + right + turn));
+  SetSpeed(true, true,   100*B(forward - right - turn));
+  SetSpeed(false, false, 100*B(forward - right + turn));
+  SetSpeed(true, false,  100*B(forward + right - turn));
 }
 
-void stop()
-{
+void stop() {
   ledcWrite(RFplus, 0);
   ledcWrite(RFminus, 0);
   ledcWrite(RBplus, 0);
@@ -93,8 +84,13 @@ void stop()
   ledcWrite(LBminus, 0);
 }
 
+
 //* Servos
 // #include <Servo.h>
+// #include <ESP32PWM.h>
+#include <ESP32Servo.h>
+
+
 
 Servo Xservo;
 Servo Yservo;
@@ -103,8 +99,8 @@ void setupServo()
 {
   EN_SERVO = true;
   pinMode(25, OUTPUT);
-  Xservo.attach(23);
-  Yservo.attach(2);
+  Xservo.attach(32);
+  Yservo.attach(33);
   Yservo.write(0);
   Xservo.write(0);
 }
@@ -125,45 +121,45 @@ void targetServo(int Xtarget, int Ytarget)
   }
 }
 
-void scan()
-{
-  String toSend[180];
-  Xservo.write(XServo_position * K);
-  for (int YServo_position = 0; YServo_position < 180; YServo_position += dy)
-  {
-    if (true)
-    { //(XServo_position < 90){
-      for (XServo_position = 0; XServo_position < 180; XServo_position += dx)
-      {
-        Xservo.write(XServo_position * K);
-        xdots[XServo_position] = XServo_position;
-      }
-    }
-    else
-    {
-      for (XServo_position = 180; XServo_position > 0; XServo_position -= dx)
-      {
-        Xservo.write(XServo_position * K);
-        xdots[XServo_position] = mesure();
-      }
-    }
-    Yservo.write(YServo_position);
-    Xservo.write(0);
-    // uploadScan(YServo_position, xdots); 
-    // TODO uploadScan(YServo_position, xdots);
-    String toAdd = "";
+// void scan()
+// {
+//   String toSend[180];
+//   Xservo.write(XServo_position * K);
+//   for (int YServo_position = 0; YServo_position < 180; YServo_position += dy)
+//   {
+//     if (true)
+//     { //(XServo_position < 90){
+//       for (XServo_position = 0; XServo_position < 180; XServo_position += dx)
+//       {
+//         Xservo.write(XServo_position * K);
+//         xdots[XServo_position] = XServo_position;
+//       }
+//     }
+//     else
+//     {
+//       for (XServo_position = 180; XServo_position > 0; XServo_position -= dx)
+//       {
+//         Xservo.write(XServo_position * K);
+//         xdots[XServo_position] = mesure();
+//       }
+//     }
+//     Yservo.write(YServo_position);
+//     Xservo.write(0);
+//     // uploadScan(YServo_position, xdots); 
+//     // TODO uploadScan(YServo_position, xdots);
+//     String toAdd = "";
 
-    delay(20);
-  }
+//     delay(20);
+//   }
   
-}
+// }
 
 //* WiFi & HTTP
-// #include <WiFi.h>
-// #include <HTTPClient.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
 
-const char *ssid = "Kaluga 2.4";
-const char *password = "41931047";
+const char *ssid = "P2p";
+const char *password = "";
 
 WiFiServer server(80);
 
@@ -183,7 +179,7 @@ void setupWiFi()
   Serial.println(WiFi.localIP());
   if (EN_DISPLAY)
   {
-    printOnDisplay(String(WiFi.localIP()));
+    // printOnDisplay(String(WiFi.localIP()));
   }
 }
 
@@ -191,6 +187,7 @@ int contX;
 int contY;
 int camX;
 int camY;
+int rot;
 int option;
 
 void sep(String a)
@@ -213,13 +210,18 @@ void sep(String a)
   // Find the fourth comma after the third one
   int commaIndex4 = a.indexOf(',', commaIndex3 + 1);
   String e = a.substring(commaIndex3 + 1, commaIndex4); // Extract substring between third and fourth comma
-  String f = a.substring(commaIndex4 + 1);              // Extract substring after the fourth comma
+
+  // Find the fourth comma after the third one
+  int commaIndex5 = a.indexOf(',', commaIndex4 + 1);
+  String f = a.substring(commaIndex4 + 1, commaIndex5); // Extract substring between third and fourth comma
+  String g = a.substring(commaIndex5 + 1);              // Extract substring after the fourth comma
 
   contX = b.toInt();
   contY = c.toInt();
   camX = d.toInt();
   camY = e.toInt();
-  option = f.toInt();
+  rot  = f.toInt();
+  option = g.toInt();
 }
 
 void remoteCtrl()
@@ -243,10 +245,10 @@ void remoteCtrl()
         }
         Serial.println("Received command: " + command);
         sep(command);
-        int speed = contY, shift = contX;
-        if (speed != 0 || shift != 0)
+        int speed = contY, shift = contX, Rot = rot;
+        if (speed != 0 || shift != 0 || Rot != 0)
         {
-          drive(speed, 0, shift);
+          drive(speed, shift, Rot);
         }
         else
         {
@@ -254,25 +256,37 @@ void remoteCtrl()
         }
         if (EN_SERVO)
         {
-          targetServo(camX, camY);
+          // targetServo(camX, camY);
         }
         if (option == 1)
         {
-          digitalWrite(25, HIGH);
+          digitalWrite(2, HIGH);
         }
         else if (option == 0)
         {
-          digitalWrite(25, LOW);
+          digitalWrite(2, LOW);
         }
         else if (option > 1)
         {
-          scan();
+          scan(;);
         }
       }
     }
   }
   Serial.println("Client disconnected");
 }
+
+//* Scanner (Servo+TFL)
+#include <TFLI2C.h>
+
+TFLI2C tflI2C;
+int16_t tfDist;               // distance in centimeters
+int16_t tfAddr = TFL_DEF_ADR; // Use this default I2C address
+
+int xdots[180];
+int ydots[180];
+
+float K = 0.199 + 0.801;
 
 void setupScanner()
 {
@@ -309,6 +323,7 @@ int XServo_position = 0;
 int dx = 1;
 int dy = 1;
 double t = 1.2;
+// double K = 1.0;
 
 void scan()
 {
@@ -337,23 +352,23 @@ void scan()
     uploadScan(YServo_position, xdots);
     String toAdd = "";
 
-    delay(20); 
+    delay(20);
   }
   
 }
 
 void uploadScan(int pos, int theScan[180])
 {
-  HTTPClient http;
-  String Line = "";
-    Line += theScan[i] + ",";
-  }
-  Line += theScan[179];
+  // HTTPClient http;
+  // String Line = "";
+  //   Line += theScan[i] + ",";
+  // }
+  // Line += theScan[179];
 
-    String url = BaseURL + "US/" + pos + "/" + Line;
-    http.begin(url);
-    int httpResponseCode = http.GET();
-    http.end();
+  //   String url = BaseURL + "US/" + pos + "/" + Line;
+  //   http.begin(url);
+  //   int httpResponseCode = http.GET();
+  //   http.end();
 }
 
 //* Main
