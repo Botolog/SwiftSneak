@@ -6,59 +6,62 @@ bool EN_MOTORS = false, EN_DISPLAY = false, EN_RGB = false, EN_GYRO = false, EN_
 #define PinLFminus 16
 #define PinRBplus 14
 #define PinRBminus 23
-#define PinLBplus 13
+#define PinLBplus 27
 #define PinLBminus 12
 
-#define RFplus 7
-#define RFminus 1
-#define LFplus 2
-#define LFminus 3
-#define RBplus 8
-#define RBminus 5
-#define LBplus 6
-#define LBminus 4
+// #define RFplus 7
+// #define RFminus 1
+// #define LFplus 2
+// #define LFminus 3
+// #define RBplus 8
+// #define RBminus 5
+// #define LBplus 6
+// #define LBminus 4
 
 const int freq = 3000;
 const int resolution = 8;
 
 void setupMotors() {
   EN_MOTORS = true;
-  ledcSetup(RFplus, freq, resolution);
-  ledcSetup(RFminus, freq, resolution);
-  ledcSetup(LFplus, freq, resolution);
-  ledcSetup(LFminus, freq, resolution);
-  ledcSetup(RBplus, freq, resolution);
-  ledcSetup(RBminus, freq, resolution);
-  ledcSetup(LBplus, freq, resolution);
-  ledcSetup(LBminus, freq, resolution);
-  ledcAttachPin(PinRFplus, RFplus);
-  ledcAttachPin(PinRFminus, RFminus);
-  ledcAttachPin(PinLFplus, LFplus);
-  ledcAttachPin(PinLFminus, LFminus);
-  ledcAttachPin(PinRBplus, RBplus);
-  ledcAttachPin(PinRBminus, RBminus);
-  ledcAttachPin(PinLBplus, LBplus);
-  ledcAttachPin(PinLBminus, LBminus);
+  pinMode(PinRFplus, OUTPUT);
+  pinMode(PinRFminus, OUTPUT);
+  pinMode(PinLFplus, OUTPUT);
+  pinMode(PinLFminus, OUTPUT);
+  pinMode(PinRBplus, OUTPUT);
+  pinMode(PinRBminus, OUTPUT);
+  pinMode(PinLBplus, OUTPUT);
+  pinMode(PinLBminus, OUTPUT);
 }
 
 void SetSpeed(bool right, bool front, double speed = 0) {
+  double res = 1024;
   Serial.print(speed); Serial.print(" ==> ");
-  speed = max(min(((speed) + 100) / 200 * 255, 255.0), 0.0);
+  speed = max(min(((speed) + 100) / 200 * res, res), 0.0);
+  // speed = (((speed) + 100) / 200 );
   Serial.println(speed);
 
+  
+  Serial.print(front ? "Front - " : "Back - ");
+  Serial.println(right ? "Right" : "Left");
+
   if (right && front) {
-    ledcWrite(RFplus, speed);
-    ledcWrite(RFminus, 255 - speed);
+    Serial.println("RF+");
+    analogWrite(PinRFplus, speed);
+    Serial.println("RF-");
+    analogWrite(PinRFminus, res - speed);
   } else if (right && !front) {
-    ledcWrite(RBplus, speed);
-    ledcWrite(RBminus, 255 - speed);
+    analogWrite(PinRBplus, speed);
+    analogWrite(PinRBminus, res - speed);
   } else if (!right && front) {
-    ledcWrite(LFplus, speed);
-    ledcWrite(LFminus, 255 - speed);
+    analogWrite(PinLFplus, speed);
+    analogWrite(PinLFminus, res - speed);
   } else if (!right && !front) {
-    ledcWrite(LBplus, speed);
-    ledcWrite(LBminus, 255 - speed);
+    analogWrite(PinLBplus, speed);
+    analogWrite(PinLBminus, res - speed);
   }
+  Serial.println("done");
+  Serial.println("========================================");
+
 }
 
 double B(double x) {
@@ -74,21 +77,21 @@ void drive(double forward, double right, double turn) {
 }
 
 void stop() {
-  ledcWrite(RFplus, 0);
-  ledcWrite(RFminus, 0);
-  ledcWrite(RBplus, 0);
-  ledcWrite(RBminus, 0);
-  ledcWrite(LFplus, 0);
-  ledcWrite(LFminus, 0);
-  ledcWrite(LBplus, 0);
-  ledcWrite(LBminus, 0);
+  analogWrite(PinRFplus, 0);
+  analogWrite(PinRFminus, 0);
+  analogWrite(PinRBplus, 0);
+  analogWrite(PinRBminus, 0);
+  analogWrite(PinLFplus, 0);
+  analogWrite(PinLFminus, 0);
+  analogWrite(PinLBplus, 0);
+  analogWrite(PinLBminus, 0);
 }
 
 
 //* Servos
 // #include <Servo.h>
 // #include <ESP32PWM.h>
-#include <ESP32Servo.h>
+// #include <ESP32Servo.h>
 
 
 Servo Xservo;
@@ -381,17 +384,18 @@ void setup()
 {
   Serial.begin(115200);
   setupMotors();
-  // drive(0, 0, 0);
-  // setupServo();
+  stop();
+  setupServo();
   // setupDisplay();
   // setupRGB();
   // setupGyro();
   // setupIR();
   setupWiFi();
-  // setupScanner();
+  setupScanner();
 
   Serial.println("Ready! Starting...");
   delay(500);
+  scan();
 }
 
 void runRemotCtrl()
@@ -408,4 +412,13 @@ void loop()
   // scan();
   // delay(10000);
   // mesure();
+  // drive(0, 100, 0);
+  // delay(1000);
+  // drive(100, 0, 0);
+  // delay(1000);
+  // drive(-100, 0, 0);
+  // delay(1000);
+  // drive(0, -100, 0);
+  // delay(1000);
+  
 }

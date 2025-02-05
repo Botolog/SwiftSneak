@@ -3,6 +3,6 @@
     "board": "esp32:esp32:esp32doit-devkit-v1",
     "programmer": "esptool",
     "port": "COM6",
-    "sketch": "SwiftSneak.ino",
+    "sketch": "testing_area\\testing_area.ino",
     "output": "./Temp"
 }
