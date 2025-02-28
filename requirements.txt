@@ -1,3 +1,5 @@
 firebase_admin
 flask
 flask-cors
+keyboard
+pygame

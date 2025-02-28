@@ -38,30 +38,6 @@ def data(speed, info):
   if ("stop" in info):
     element[0] = 0; element[1] = 0
   DATA_OUT = tuple(element)
-  
-  # match info:
-  #   case "left-forward":
-  #     return "left-forward"
-  #   case "left":
-  #     return "left"
-  #   case "left-backward":
-  #     return "left-backward"
-  #   case "forward":
-  #     return "forward"
-  #   case "rotate-left":
-  #     return "rotate-left"
-  #   case "rotate-right":
-  #     return "rotate-right"
-  #   case "right-forward":
-  #     return "right-forward"
-  #   case "right":
-  #     return "right"
-  #   case "right-backward":
-  #     return "right-backward"
-  #   case "backward":
-  #     return "backward"
-  #   case "stop": 
-  #     return "stop"
   return str(DATA_OUT)
   return "None"
 
