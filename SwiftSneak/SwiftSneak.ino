@@ -9,14 +9,6 @@ bool EN_MOTORS = false, EN_DISPLAY = false, EN_RGB = false, EN_GYRO = false, EN_
 #define PinLBplus 27
 #define PinLBminus 12
 
-// #define RFplus 7
-// #define RFminus 1
-// #define LFplus 2
-// #define LFminus 3
-// #define RBplus 8
-// #define RBminus 5
-// #define LBplus 6
-// #define LBminus 4
 
 const int freq = 3000;
 const int resolution = 8;
@@ -91,7 +83,7 @@ void stop() {
 //* Servos
 // #include <Servo.h>
 // #include <ESP32PWM.h>
-// #include <ESP32Servo.h>
+#include <ESP32Servo.h>
 
 
 Servo Xservo;
@@ -278,12 +270,96 @@ void remoteCtrl()
   Serial.println("Client disconnected");
 }
 
+//* Firebase
+#include <Firebase_ESP_Client.h>
+#include "addons/TokenHelper.h"
+#include "addons/RTDBHelper.h"
+
+#define API_KEY "AIzaSyC00hAZFurAIfiE4WiawPSIIo-d8iSC5WU"
+#define DATABASE_URL "https://swiftsneak-1379-default-rtdb.europe-west1.firebasedatabase.app/"
+
+FirebaseData firebaseData;
+FirebaseAuth auth;
+FirebaseConfig config;
+
+FirebaseJson json;
+
+
+bool signUpOk = false;
+
+
+void setupFirebase()
+{
+  config.host = DATABASE_URL;
+  config.api_key = API_KEY;
+  if (Firebase.signUp(&config, &auth, "", "")){
+    Serial.println("Sign up OK");
+  }
+  config.token_status_callback = tokenStatusCallback;
+  Firebase.begin(&config, &auth);
+  Firebase.reconnectWiFi(true);
+
+}
+
+void uploadJson(String path, bool merge)
+{
+  if (merge)
+  {
+    if (Firebase.RTDB.pushJSON(&firebaseData, path, &json))
+    {
+      //Serial.println("Push: Upload OK");
+      delay(500);
+    }
+  }
+
+  else
+  {
+    if (Firebase.RTDB.setJSON(&firebaseData, path, &json))
+    {
+      Serial.println("Set: Upload OK");
+      delay(500);
+    }
+  }
+}
+
+void uploadData(String path, int data)
+{
+  if (Firebase.RTDB.setInt(&firebaseData, path, data))
+  {
+    Serial.println("Upload OK");
+  }
+}
+
+
+void uploadScan(int pos, int xdots[180])
+{
+  int parts = 1;
+  json.clear();
+  uploadJson("/distances/", false);
+ 
+  for (int j = 0; j < parts; j++)
+  {
+    //Serial.println("Uploading... " + String(j));
+    json.clear();
+    for (int i = 0; i < 180 / parts; i++)
+    { 
+      int k = j * (180 / parts) + i;
+      json.add(String(k), String(xdots[k]));
+    }
+    uploadJson("/distances/"+String(pos), false);
+  }
+  Serial.println("Uploaded");
+}
+
+
+
 //* Scanner (Servo+TFL)
 #include <TFLI2C.h>
+#include <Wire.h>
 
 TFLI2C tflI2C;
 int16_t tfDist;               // distance in centimeters
-int16_t tfAddr = 0x10; // Use this default I2C address
+int16_t tfAddr = 0x10;        // Use this default I2C address
 
 int xdots[180];
 int ydots[180];
@@ -295,6 +371,7 @@ void setupScanner()
   EN_SCANNER = true;
   if (true)
   {
+    Wire.begin();
     delay(1500);
     for (int test = 0; test <= 180; test += 1)
     {
@@ -315,7 +392,7 @@ int16_t mesure()
     Serial.println("pls turn on scanner!!");
     ESP.restart();
   }
-  delay(10);
+  delay(60);
   tflI2C.getData(tfDist, tfAddr);
   // Serial.println(tfDist);
   return tfDist;
@@ -333,7 +410,7 @@ void scan()
   Xservo.write(XServo_position * K);
   for (int YServo_position = 0; YServo_position < 180; YServo_position += dy)
   {
-    if (false)
+    if (true)
     { //(XServo_position < 90){
       for (XServo_position = 0; XServo_position < 180; XServo_position += dx)
       {
@@ -341,43 +418,56 @@ void scan()
         xdots[XServo_position] = XServo_position;
       }
     }
-    else
-    {
-      for (XServo_position = 180; XServo_position > 0; XServo_position -= dx)
-      {
-        Xservo.write(XServo_position * K);
-        xdots[XServo_position] = mesure();
-      }
-    }
+    // else
+    // {
+    //   for (XServo_position = 180; XServo_position > 0; XServo_position -= dx)
+    //   {
+    //     Xservo.write(XServo_position * K);
+    //     xdots[XServo_position] = mesure();
+    //     // json.add(String(XServo_position), mesure());
+    //   }
+    // }
     Yservo.write(YServo_position);
     Xservo.write(0);
     uploadScan(YServo_position, xdots);
+    json.clear();
     String toAdd = "";
 
     delay(20);
   }
-  
 }
 
-void uploadScan(int pos, int theScan[180])
-{
-  for (int i = 0; i < 180; i++)
-  {
-    Serial.print(i);
-    Serial.print(" : ");
-    Serial.println(theScan[i]);
-  }
-  // HTTPClient http;
-  // String Line = "";
-  //   Line += theScan[i] + ",";
-  // }
-  // Line += theScan[179];
+// void uploadScan(int pos, int xdots[180])
+// {
+//   int parts = 180;
+//   for (int j = 0; j < parts; j++){
+//     Serial.println("Uploading... "+String(j));
+//     json.clear();
+//     for (int i = 0; i < 180/parts; i++)
+//     {
+//       int k = j*(180/parts)+i;
+//       json.add(String(k), String(xdots[k]));
+//     }
+//     uploadJson("12/12");
+//   }
+//   Serial.println("Uploaded");
+//   // for (int i = 0; i < 180; i++)
+//   // {
+//   //   Serial.print(i);
+//   //   Serial.print(" : ");
+//   //   Serial.println(theScan[i]);
+//   // }
+//   // HTTPClient http;
+//   // String Line = "";
+//   //   Line += theScan[i] + ",";
+//   // } 
+//   // Line += theScan[179];
 
-  //   String url = BaseURL + "US/" + pos + "/" + Line;
-  //   http.begin(url);
-  //   int httpResponseCode = http.GET();
-  //   http.end();
-}
+//   //   String url = BaseURL + "US/" + pos + "/" + Line;
+//   //   http.begin(url);
+//   //   int httpResponseCode = http.GET();
+//   //   http.end();
+// }
 
 //* Main
 void setup()
@@ -391,11 +481,12 @@ void setup()
   // setupGyro();
   // setupIR();
   setupWiFi();
+  setupFirebase();
   setupScanner();
 
   Serial.println("Ready! Starting...");
   delay(500);
-  scan();
+  // scan();
 }
 
 void runRemotCtrl()
@@ -408,7 +499,8 @@ void runRemotCtrl()
 
 void loop()
 {
-  runRemotCtrl();
+  scan();
+  // runRemotCtrl();
   // scan();
   // delay(10000);
   // mesure();
@@ -419,6 +511,6 @@ void loop()
   // drive(-100, 0, 0);
   // delay(1000);
   // drive(0, -100, 0);
-  // delay(1000);
+  delay(1000);
   
 }
