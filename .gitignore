@@ -2,4 +2,5 @@ unityproject/
 nocode/
 ./client/interface_flask/__pycache__
 /Temp
-.vscode/c_cpp_properties.json
+/.vscode/*
+\.vscode\*
